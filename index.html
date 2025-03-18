@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amigo Secreto</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Amigo Secreto</h1>
+        <form id="formAgregar">
+            <input type="text" id="nombre" placeholder="Ingresa un nombre" required>
+            <button type="submit">Adicionar</button>
+        </form>
+        <ul id="listaAmigos">
+            <!-- Aquí se mostrarán los nombres de los amigos -->
+        </ul>
+        <button id="sortearBtn">Sortear Amigo</button>
+        <p id="resultado"></p>
+    </div>
+
+    <script>
+        document.getElementById('formAgregar').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const nombre = document.getElementById('nombre').value;
+            fetch('/agregar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `nombre=${encodeURIComponent(nombre)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const listaAmigos = document.getElementById('listaAmigos');
+                    listaAmigos.innerHTML = data.amigos.map(amigo => `<li>${amigo}</li>`).join('');
+                    document.getElementById('nombre').value = '';
+                } else {
+                    alert(data.message);
+                }
+            });
+        });
+
+        document.getElementById('sortearBtn').addEventListener('click', function() {
+            fetch('/sortear', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('resultado').textContent = `El amigo secreto es: ${data.amigo_secreto}`;
+                } else {
+                    alert(data.message);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
